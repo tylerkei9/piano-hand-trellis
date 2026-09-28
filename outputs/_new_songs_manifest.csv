@@ -1,0 +1,56 @@
+song_id,label,note_count
+odetojoy,Ode to Joy,30
+furelise,Fur Elise (opening),18
+rowrowboat,"Row, Row, Row Your Boat",27
+scalerun,C Major Scale Run,16
+jinglebells,Jingle Bells,25
+leapstresstest,Octave Leap Stress Test,14
+frerejacques,Frere Jacques,32
+scale_run_c,Scale Run in C,15
+scale_run_csharp,Scale Run in C#,15
+scale_run_d,Scale Run in D,15
+scale_run_dsharp,Scale Run in D#,15
+scale_run_e,Scale Run in E,15
+scale_run_f,Scale Run in F,15
+scale_run_fsharp,Scale Run in F#,15
+scale_run_g,Scale Run in G,15
+scale_run_gsharp,Scale Run in G#,15
+scale_run_a,Scale Run in A,15
+scale_run_asharp,Scale Run in A#,15
+scale_run_b,Scale Run in B,15
+arpeggio_c,Arpeggio in C,8
+arpeggio_csharp,Arpeggio in C#,8
+arpeggio_d,Arpeggio in D,8
+arpeggio_dsharp,Arpeggio in D#,8
+arpeggio_e,Arpeggio in E,8
+arpeggio_f,Arpeggio in F,8
+arpeggio_fsharp,Arpeggio in F#,8
+arpeggio_g,Arpeggio in G,8
+arpeggio_gsharp,Arpeggio in G#,8
+arpeggio_a,Arpeggio in A,8
+arpeggio_asharp,Arpeggio in A#,8
+arpeggio_b,Arpeggio in B,8
+waltz_figure_c,Broken Chord in C,12
+waltz_figure_csharp,Broken Chord in C#,12
+waltz_figure_d,Broken Chord in D,12
+waltz_figure_dsharp,Broken Chord in D#,12
+waltz_figure_e,Broken Chord in E,12
+waltz_figure_f,Broken Chord in F,12
+waltz_figure_fsharp,Broken Chord in F#,12
+waltz_figure_g,Broken Chord in G,12
+waltz_figure_gsharp,Broken Chord in G#,12
+waltz_figure_a,Broken Chord in A,12
+waltz_figure_asharp,Broken Chord in A#,12
+waltz_figure_b,Broken Chord in B,12
+leap_study_minor3rd,Leap Study (minor3rd),10
+leap_study_perfect5th,Leap Study (perfect5th),10
+leap_study_octave,Leap Study (octave),10
+leap_study_octave_plus_4th,Leap Study (octave plus 4th),10
+leap_study_two_octaves,Leap Study (two octaves),10
+trill_csharp,Black Key Trill (C#),12
+trill_dsharp,Black Key Trill (D#),12
+trill_fsharp,Black Key Trill (F#),12
+trill_gsharp,Black Key Trill (G#),12
+trill_asharp,Black Key Trill (A#),12
+repeated_notes_fast,Repeated Notes (fast),20
+repeated_notes_moderate,Repeated Notes (moderate),20
