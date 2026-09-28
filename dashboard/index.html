@@ -1705,6 +1705,7 @@
   if (enterBtn) enterBtn.addEventListener("click", function () {
     if (!enterBtn.classList.contains("ready")) return;
     hideLoadingScreen();
+    if (cache.trace && !state.playing) startPlayback();
   });
 
   fetch("data.json").then(function (r) { return r.json(); }).then(function (json) {

@@ -6,6 +6,13 @@ and fingering comfort against a set of hardware constraints. The `dashboard/`
 folder visualizes the optimizer's decision-making, step by step, for a large
 catalog of example pieces.
 
+**New to the project, or non-technical?** Start with
+[`ALGORITHM.md`](ALGORITHM.md) — a plain-language walkthrough of how the
+optimizer decides where the hand goes, no coding background required.
+Engineers looking for the implementation itself should start at
+`findOptimalHandPos.py`'s module docstring, which covers the same ground
+with direct pointers to the relevant functions.
+
 ## Structure
 
 - `findOptimalHandPos.py` — the optimizer itself: parses a MusicXML score
