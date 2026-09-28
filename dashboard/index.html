@@ -1708,7 +1708,18 @@
     if (cache.trace && !state.playing) startPlayback();
   });
 
-  fetch("data.json").then(function (r) { return r.json(); }).then(function (json) {
+  // The trace data can exceed some static hosts' single-file size limits once
+  // enough songs are included, so it is split into chunks listed in a manifest
+  // and merged here, rather than fetched as one file.
+  fetch("data-manifest.json").then(function (r) { return r.json(); }).then(function (chunkNames) {
+    return Promise.all(chunkNames.map(function (name) {
+      return fetch(name).then(function (r) { return r.json(); });
+    }));
+  }).then(function (chunks) {
+    var json = {};
+    chunks.forEach(function (chunk) {
+      for (var k in chunk) json[k] = chunk[k];
+    });
     DATA = json;
     buildSongsList();
     populateSongSelect();

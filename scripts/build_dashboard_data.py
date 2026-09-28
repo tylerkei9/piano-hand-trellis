@@ -261,11 +261,8 @@ def main():
 
     out["_song_labels"] = {row["key"]: row["label"] for row in song_manifest}
 
-    out_path = os.path.join(DASHBOARD_DIR, "data.json")
-    with open(out_path, "w") as f:
-        json.dump(out, f)
-    size_mb = os.path.getsize(out_path) / 1e6
-    print(f"\nWrote {out_path} ({size_mb:.2f} MB)", file=sys.stderr)
+    write_data_chunks(out)
+
     print(f"Songs included: {len(song_manifest)}", file=sys.stderr)
     if failed:
         print(f"Songs FAILED to trace: {failed}", file=sys.stderr)
@@ -274,6 +271,51 @@ def main():
     with open(manifest_path, "w") as f:
         json.dump(song_manifest, f, indent=2)
     print(f"Wrote {manifest_path}", file=sys.stderr)
+
+
+# The trellis trace data grows well past the ~16MB single-file limit some
+# static hosts (including the Claude Artifact preview used during
+# development) impose, once enough songs are included. Rather than have
+# two different code paths for "small dataset, one file" vs "large
+# dataset, split it," the dashboard always fetches a manifest of chunk
+# files and merges them -- so this works unchanged whether there's 6
+# songs or 600. TARGET_CHUNK_BYTES is deliberately well under any 16MB
+# cap to leave headroom.
+TARGET_CHUNK_BYTES = 8 * 1024 * 1024
+
+
+def write_data_chunks(out):
+    # Remove a stale single-file data.json from older runs of this script,
+    # so nothing accidentally keeps fetching outdated data.
+    stale = os.path.join(DASHBOARD_DIR, "data.json")
+    if os.path.exists(stale):
+        os.remove(stale)
+
+    items = [(k, v, len(json.dumps(v))) for k, v in out.items()]
+    total_bytes = sum(size for _, _, size in items)
+    n_chunks = max(1, -(-total_bytes // TARGET_CHUNK_BYTES))  # ceil division
+
+    items.sort(key=lambda x: -x[2])
+    chunks = [dict() for _ in range(n_chunks)]
+    chunk_sizes = [0] * n_chunks
+    for key, value, size in items:
+        idx = min(range(n_chunks), key=lambda i: chunk_sizes[i])
+        chunks[idx][key] = value
+        chunk_sizes[idx] += size
+
+    chunk_names = []
+    for i, chunk in enumerate(chunks):
+        name = f"data-part{i + 1}.json"
+        with open(os.path.join(DASHBOARD_DIR, name), "w") as f:
+            json.dump(chunk, f)
+        size_mb = os.path.getsize(os.path.join(DASHBOARD_DIR, name)) / 1e6
+        print(f"Wrote dashboard/{name} ({size_mb:.2f} MB, {len(chunk)} entries)", file=sys.stderr)
+        chunk_names.append(name)
+
+    manifest_path = os.path.join(DASHBOARD_DIR, "data-manifest.json")
+    with open(manifest_path, "w") as f:
+        json.dump(chunk_names, f)
+    print(f"Wrote dashboard/data-manifest.json ({len(chunk_names)} chunks, {total_bytes / 1e6:.2f} MB total)", file=sys.stderr)
 
 
 if __name__ == "__main__":
