@@ -1,74 +1,59 @@
 """
-findOptimalHandPos.py -- Robotic Piano Fingering Optimizer
+findOptimalHandPos.py: Robotic Piano Fingering Optimizer
 =============================================================
 
-WHAT THIS PROGRAM DOES (plain-language overview)
+OVERVIEW
 --------------------------------------------------
-Given a piece of sheet music, this program works out how a robotic hand
-(or a two-handed robot) should move across a piano keyboard to play it --
-specifically, where the THUMB should be positioned for each note or chord,
-since the other four fingers fall into place relative to the thumb.
+Given a piece of sheet music, this program plans how a robotic hand (or a
+two-handed robot) moves across a piano keyboard to play it. It chooses where
+the THUMB sits for each note or chord. The other four fingers are placed
+relative to the thumb.
 
-Think of it like a delivery driver choosing which stops to make in which
-order: there are many possible routes, most of them clumsy or slow, and
-one (or a few, tied) that is cheapest overall. "Cheapest" here means the
-hand travels the least distance, never needs to move faster than the
-hardware can physically manage, and avoids awkward finger stretches --
-not just at each individual note, but across the WHOLE song, because a
-convenient position now can force a terrible one two notes later.
+The best plan has the lowest total cost across the WHOLE song: the least
+distance traveled, no moves faster than the hardware allows, and few awkward
+stretches. Choosing the cheapest position at each note separately does not
+work, because a convenient position now can force a costly one later.
 
-Trying every possible sequence of hand positions would be astronomically
-slow (the number of combinations multiplies at every note). Instead this
-program uses a classic dynamic-programming technique called the VITERBI
-ALGORITHM: instead of re-solving "what's the best way to reach note 50"
-from scratch for every possible position at note 49, it remembers the
-cheapest way to reach EACH candidate position at note 49, and builds
-forward from there one note at a time. That turns an exponential problem
-into one that only takes a little more work per additional note. See
-`optimize_with_boundaries()` for the actual implementation, and the
-dashboard in `dashboard/` for a step-by-step visualization of it running.
+The number of possible position sequences grows exponentially with song
+length, so the program uses the VITERBI ALGORITHM, a dynamic-programming
+method. For each candidate position at a note, it keeps only the cheapest
+way of reaching that position, then builds forward one note at a time. Total
+work grows linearly with the number of notes. See
+`optimize_with_boundaries()` for the implementation and `dashboard/` for a
+step-by-step visualization.
 
-THE PIPELINE, START TO FINISH
+PIPELINE
 --------------------------------------------------
-1.  PARSE the score (`parse_musicxml`) -- reads a MusicXML file and pulls
-    out every note/chord with its timing, pitch, and whether it's a black
-    key, using the `music21` library.
-2.  SPLIT hands (`find_optimal_split_point`, `assign_hands_to_notes`) --
-    decides which keyboard range belongs to the left hand vs. the right
-    hand, and assigns every note accordingly.
-3.  OPTIMIZE per hand (`optimize_with_boundaries`) -- for each hand
-    separately, runs the Viterbi search described above to find the
-    cheapest sequence of thumb positions.
-4.  FINGER each note (`calculate_finger_for_note`) -- once a thumb
-    position is chosen, works out which of the 5 fingers plays each note
-    in that position's chord, including reaching for black keys or
-    stretching ("splaying") beyond the hand's natural span when needed.
-5.  OUTPUT (`generate_servo_commands`, `save_outputs`) -- turns the final
-    path into a command file a robot (or a human, for debugging) can
-    follow.
+1.  PARSE the score (`parse_musicxml`): reads a MusicXML file with `music21`
+    and extracts every note or chord with its timing, pitch and whether it
+    is a black key.
+2.  SPLIT hands (`find_optimal_split_point`, `assign_hands_to_notes`):
+    chooses the keyboard range for each hand and assigns every note.
+3.  OPTIMIZE per hand (`optimize_with_boundaries`): runs the Viterbi search
+    for each hand to find the cheapest sequence of thumb positions.
+4.  FINGER each note (`calculate_finger_for_note`): given a thumb position,
+    chooses which finger plays each note of the chord, including black keys
+    and stretches ("splays") past the hand's natural span.
+5.  OUTPUT (`generate_servo_commands`, `save_outputs`): writes the final
+    path as a command file for the robot.
 
-THE COST FUNCTION (what "cheapest" actually means)
+COST FUNCTION
 --------------------------------------------------
-Every time the hand considers moving from one thumb position to another,
-it's charged:
-  - 1 point per white key of distance traveled (`MOVE_PENALTY` is also
-    added as a flat fee just for moving at all, even one key)
+Each move from one thumb position to another is charged:
+  - 1 point per white key traveled, plus a flat `MOVE_PENALTY` for any move
   - a heavy penalty if the required speed (keys / time available) exceeds
-    what the hardware can do (`MAX_KEYS_PER_SECOND`, `VELOCITY_PENALTY`)
-  - a smaller penalty for awkward fingerings: playing a black key with
-    the thumb or pinky instead of a middle finger, or stretching
-    ("splaying") a finger beyond its natural reach (see the "SPLAY
-    CONFIGURATION" constants below)
-  - a look-ahead penalty if choosing this position would paint the hand
-    into a corner a few notes later (see "LOOK-AHEAD CONFIGURATION")
+    the hardware limit (`MAX_KEYS_PER_SECOND`, `VELOCITY_PENALTY`)
+  - a smaller penalty for awkward fingerings: a black key played with the
+    thumb or pinky, or a finger splayed past its natural reach (see the
+    "SPLAY CONFIGURATION" constants below)
+  - a look-ahead penalty if the position makes notes a few steps later hard
+    to reach (see "LOOK-AHEAD CONFIGURATION")
 
-The Viterbi search adds these costs up over the whole song and picks the
-sequence of positions with the lowest total -- not the cheapest choice at
-each note in isolation, but the cheapest path through all of them.
+The Viterbi search sums these costs over the whole song and returns the
+sequence of positions with the lowest total.
 
-Run with `--help` for the command-line options, or see docs/DEVELOPERS.md
-for how this fits into the rest of the project (the interactive
-dashboard, the example song catalog, and how to regenerate its data).
+Run with `--help` for command-line options. See docs/DEVELOPERS.md for the
+dashboard, the song catalog and how to regenerate the data.
 """
 import csv
 import os
@@ -1108,7 +1093,7 @@ def optimize_with_boundaries(note_groups, hand_name, max_boundary=None, min_boun
          kept, not every possible history. Because any future decision
          only cares about the cost-so-far and the current position (not
          how it got there), throwing away the more expensive alternatives
-         is always safe -- they could never win later either. This is
+         is always safe because they could never win later. This is
          what turns an exponential "try every combination" search into
          one that does a small, fixed amount of work per note.
       4. After the last note, pick whichever final candidate has the
@@ -1492,7 +1477,7 @@ def assign_hands_to_notes(note_groups, split_point, resolve_conflicts=True):
     inside that gap are assigned to whichever side they're closer to.
 
     A chord that straddles the split point (some notes below, some at or
-    above) is a "conflict" -- resolved, when resolve_conflicts is True,
+    above) is a "conflict". It is resolved, when resolve_conflicts is True,
     by literally splitting that one chord between both hands
     (`resolve_conflicts_by_splitting`) rather than forcing the whole
     chord onto one hand and making it unplayable.
@@ -1613,7 +1598,7 @@ def calculate_path_cost(path, note_groups, hand):
 def find_optimal_split_point(note_groups):
     """
     Decide which white key divides the keyboard into "left hand territory"
-    and "right hand territory" -- e.g. everything below middle C goes to
+    and "right hand territory", e.g. everything below middle C goes to
     the left hand, everything at or above goes to the right.
 
     There's no formula for the single best split point up front: it

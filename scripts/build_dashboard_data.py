@@ -278,7 +278,7 @@ def main():
 # development) impose, once enough songs are included. Rather than have
 # two different code paths for "small dataset, one file" vs "large
 # dataset, split it," the dashboard always fetches a manifest of chunk
-# files and merges them -- so this works unchanged whether there's 6
+# files and merges them, so this works unchanged whether there's 6
 # songs or 600. TARGET_CHUNK_BYTES is deliberately well under any 16MB
 # cap to leave headroom.
 TARGET_CHUNK_BYTES = 8 * 1024 * 1024

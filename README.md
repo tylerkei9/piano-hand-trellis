@@ -1,87 +1,78 @@
 # Piano Hand Trellis
 
-**Teaching a robotic hand where to sit on a piano keyboard so it can play a whole song smoothly.**
+Plans how a robotic hand moves across a piano keyboard to play a song.
 
-![The dashboard, showing Hot Cross Buns: the notes falling onto a keyboard, and below them every hand position the program considered, with the chosen path highlighted in orange](docs/dashboard.png)
+![The dashboard showing Hot Cross Buns. Notes fall onto a keyboard, and below them every hand position the program considered, with the chosen path in orange.](docs/dashboard.png)
 
 ## What this is
 
-This project plans how a robotic hand should move across a piano keyboard to
-play a song. For each note, the hand could sit in many different positions,
-and some choices make the next notes easy to reach while others force awkward
-stretches or jumps. The program weighs all of those options together and picks
-the sequence of hand positions that plays the whole song with the least strain
-and movement.
+For each note in a song, a robotic hand could sit in many positions. Some
+make the next notes easy to reach. Others lead to stretches or long jumps.
+The program compares these options across the whole song and picks the
+sequence of hand positions with the least strain and movement.
 
-The included **dashboard** walks through each song note by note, showing the
-positions the program considered, the one it chose and why, alongside playback
-of the music.
+The dashboard steps through each song note by note. It shows the positions
+the program considered, the one it chose and why, and plays the music.
 
-## Why it's harder than it looks
+## How it works
 
-A hand can only cover about an octave at once, a robot can only move so fast,
-and every note has to be reachable at the exact moment it's played. The
-choice that looks easiest for *this* note can leave the hand stranded for the
-next few. So the program can't just pick the best spot one note at a time. It
-has to plan the whole song at once.
+A hand covers about one octave, the robot has a top speed, and every note
+must be reachable when it is played. The best position for one note can make
+the next few notes hard to reach, so the program plans the whole song at
+once instead of one note at a time.
 
-Checking every possible plan would take longer than the age of the universe.
-Instead, the program uses a classic shortcut (the *Viterbi algorithm*, the same
-idea behind GPS route-finding and speech recognition) that finds the best plan
-in well under a second.
+Comparing every possible plan directly is not practical. The program uses
+the Viterbi algorithm, a standard method for finding the lowest-cost path
+through a sequence of choices. It finds the best plan in under a second.
 
-**Want the full story without any code?** Read
-[How this works](ALGORITHM.md). It's a plain-language walkthrough built
-around a road-trip analogy.
+[How this works](ALGORITHM.md) explains the method without code.
 
-## What the dashboard shows
+## The dashboard
 
-| Part of the screen | What it tells you |
+| Section | Shows |
 | --- | --- |
-| **Song and hardware mode** | Pick any of 61 songs. Switch to *right-hand-only* to see what happens if the robot's left hand stops working. |
-| **Path summary** | The final score for the chosen plan: how far the hand moved, how many times it repositioned, and how many stretches were awkward. |
-| **Piano roll** | Notes fall onto the keyboard in time with the music, with sound. |
-| **Decision map** (bottom) | Every possible hand position at every note. The **orange line** is the plan the program chose. Click any position to see why it was or wasn't picked. |
+| **Song and hardware mode** | Choose one of 61 songs. *Right-hand-only* mode simulates a failed left hand. |
+| **Path summary** | Totals for the chosen plan: distance moved, repositions and awkward reaches. |
+| **Piano roll** | Notes reaching the keyboard in time with the music, with sound. |
+| **Decision map** | Every possible hand position at every note. The orange line is the chosen plan. Click a position to see its costs. |
 
-The 61 songs include six familiar pieces (Hot Cross Buns, Happy Birthday,
+The songs include six familiar pieces (Hot Cross Buns, Happy Birthday,
 Twinkle Twinkle Little Star, Mary Had a Little Lamb, the Star-Spangled Banner
-and Fuyu no Hanashi) plus short exercises chosen to test the program: fast
-scales, big leaps, arpeggios and tricky black-key passages.
+and Fuyu no Hanashi) and 55 short exercises: scales, leaps, arpeggios and
+black-key passages.
 
-## Try it yourself
+## Run it
 
-You need a Mac, Windows or Linux computer with
-[Python 3](https://www.python.org/downloads/) installed. Nothing else.
+Requires [Python 3](https://www.python.org/downloads/).
 
-1. Download this project: click the green **Code** button at the top of this
-   page, then **Download ZIP**, and unzip it.
-2. Open a terminal (on a Mac, search Spotlight for *Terminal*) and go into the
-   `dashboard` folder inside the project, for example:
+1. Click the green **Code** button on this page, choose **Download ZIP** and
+   unzip it.
+2. Open a terminal (on a Mac, search Spotlight for *Terminal*) and go to the
+   `dashboard` folder:
    ```
    cd ~/Downloads/piano-hand-trellis-main/dashboard
    ```
-3. Start a small local web server:
+3. Start a local web server:
    ```
    python3 -m http.server 8000
    ```
-4. Open **http://localhost:8000/** in your web browser and click
-   **Enter dashboard**.
+4. Open **http://localhost:8000/** and click **Enter dashboard**.
 
-To stop the server, go back to the terminal and press `Ctrl + C`.
+Press `Ctrl + C` in the terminal to stop the server.
 
-## What's in this project
+## Contents
 
-| Folder or file | What it is |
+| Path | Contents |
 | --- | --- |
-| `dashboard/` | The interactive dashboard you see above. |
-| `ALGORITHM.md` | A plain-language explanation of how the program decides. |
-| `findOptimalHandPos.py` | The program itself: reads sheet music and plans the hand's movements. |
+| `dashboard/` | The interactive dashboard. |
+| `ALGORITHM.md` | How the program decides, without code. |
+| `findOptimalHandPos.py` | The program. Reads sheet music and plans the hand's movements. |
 | `inputs/` | Sheet music for the six main songs. |
-| `outputs/` | The notes of every song, converted into the format the program reads. |
-| `output_rh_only/` | Example results for the right-hand-only scenario. |
-| `docs/` | The screenshot above and the [developer guide](docs/DEVELOPERS.md). |
+| `outputs/` | Every song's notes in the format the program reads. |
+| `output_rh_only/` | Example results for right-hand-only mode. |
+| `docs/` | The screenshot and the [developer guide](docs/DEVELOPERS.md). |
 
 ## For developers
 
-Setup, regenerating the dashboard data, command-line options and the
-verification script are covered in the [developer guide](docs/DEVELOPERS.md).
+See the [developer guide](docs/DEVELOPERS.md) for setup, commands, options
+and how to rebuild the dashboard data.

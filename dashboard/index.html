@@ -948,7 +948,7 @@
     Array.prototype.forEach.call(fg.children, function (elm) { elm.classList.toggle("show", finalReady); });
   }
 
-  // Reveal one layer instantly (no stagger) — used for prefers-reduced-motion.
+  // Reveal one layer instantly (no stagger). Used for prefers-reduced-motion.
   function revealLayerInstant(stepIdx) {
     var svg = el("trellisSvg");
     var lab = svg.querySelector('.col-required[data-step="' + stepIdx + '"]');
@@ -961,7 +961,7 @@
   // Grow a layer the way the optimizer actually builds it: candidate thumb positions
   // are scanned low-to-high (matching get_possible_states_extended's position scan),
   // and each one briefly shows every earlier position it could have come from before
-  // settling on the cheapest — the same comparison Viterbi's inner loop performs.
+  // settling on the cheapest, the same comparison Viterbi's inner loop performs.
   var LAYER_GROW_MS = 380;
   var growTimers = [];
   function clearGrowTimers() {
@@ -1125,7 +1125,7 @@
   }
 
   // Keeps three things lit while everything else fades: (1) the whole optimal path,
-  // always — so you can click backward along it to trace how earlier decisions
+  // always, so you can click backward along it to trace how earlier decisions
   // cascaded forward; (2) every sibling in the clicked layer, matching the inspector's
   // same-layer table; (3) the clicked node's own predecessor + the edge it actually used.
   function applyFade(stepIdx, pos) {
@@ -1169,8 +1169,8 @@
     balanceTopRow();
   }
 
-  // Shows every candidate hand position the optimizer weighed at this same instant —
-  // not just the one path taken — so it answers "why this note and not another one
+  // Shows every candidate hand position the optimizer weighed at this same instant,
+  // not just the one path taken, so it answers "why this note and not another one
   // right here" rather than "what led into this note."
   function renderInspector(stepIdx, pos, pinned) {
     var btn = el("inspectorClear"); if (btn) btn.style.display = pinned ? "inline-flex" : "none";
@@ -1190,8 +1190,8 @@
     });
 
     // Pin the chosen (final) row and the one you're looking at to the top, so they're
-    // always visible without scrolling even when the layer has many candidates —
-    // the rest still fill in below, cheapest first.
+    // always visible without scrolling even when the layer has many candidates.
+    // The rest fill in below, cheapest first.
     var rows = [];
     var finalRow = step.states.filter(function (x) { return x.pos === finalPos; })[0];
     if (finalRow) rows.push(finalRow);
@@ -1210,7 +1210,7 @@
     var finalState = step.states.filter(function (x) { return x.pos === finalPos; })[0];
     var finalCost = finalState ? finalState.cost : null;
 
-    // Full breakdown per sibling — not just its final cost, but the actual penalties
+    // Full breakdown per sibling: not just its final cost, but the actual penalties
     // (move/speed/finger, plus what it came from) that built that cost, so every row
     // is quantitatively comparable to the one the algorithm actually chose.
     html += '<div style="overflow-x:auto;"><table class="edges"><thead><tr>' +
@@ -1592,7 +1592,7 @@
       var done = state.revealCount >= trace.steps.length;
       if (done) state.revealCount = trace.steps.length;
 
-      // The trellis only changes at step boundaries — grow each newly-crossed layer
+      // The trellis only changes at step boundaries. Grow each newly-crossed layer
       // node-by-node instead of doing a full reveal pass 60x/sec.
       if (state.revealCount !== lastRevealCount) {
         for (var gi = lastRevealCount; gi < state.revealCount; gi++) growLayer(gi);

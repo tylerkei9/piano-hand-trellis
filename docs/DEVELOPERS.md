@@ -1,10 +1,9 @@
 # Developer guide
 
-Technical setup and workflows. For what the project does, see the
-[README](../README.md); for how the optimizer decides, in plain language, see
-[ALGORITHM.md](../ALGORITHM.md). The implementation's own overview is the
-module docstring at the top of `findOptimalHandPos.py`, with pointers to the
-relevant functions.
+Setup and workflows. The [README](../README.md) describes the project and
+[ALGORITHM.md](../ALGORITHM.md) explains the method without code. The module
+docstring in `findOptimalHandPos.py` gives a code-level overview with pointers
+to the relevant functions.
 
 ## Setup
 
@@ -23,12 +22,12 @@ The dashboard itself has no dependencies or build step.
 | `findOptimalHandPos.py` | The optimizer. Parses a MusicXML score, chooses the left/right split point, runs a Viterbi search per hand over candidate thumb positions, assigns fingers, and writes the plan and servo commands. |
 | `run_all.py` | Runs the optimizer on every MusicXML file in `inputs/`, writing to `outputs/` with the song name as a filename prefix. |
 | `run_all_rh_only.py` | Same, with every note forced onto the right hand (simulated left-hand failure), writing to `output_rh_only/`. |
-| `verify_fingering.py` | Independent checker for the optimizer's output: correct notes at correct times, no finger collisions, held notes keep their finger, speed and hand-gap limits, reachability, command format. |
+| `verify_fingering.py` | Checks the optimizer's output: correct notes and timing, finger collisions, held notes, speed and hand-gap limits, reachability and command format. |
 | `inputs/` | MusicXML scores for the six original songs. |
 | `outputs/` | `<song>_timed_steps.csv` for all 61 songs (`start_time, midi, duration, white_key_index, is_black`), the input format for the dashboard build. `_new_songs_manifest.csv` lists the 55 generated demo songs. |
 | `output_rh_only/` | Right-hand-only results (fingering plans, summaries, servo commands) for the six original songs. |
-| `scripts/generate_new_songs.py` | Defines and writes the CSVs for the 55 demo songs (scales, arpeggios, trills, leap studies, repeated notes), each designed to exercise one part of the cost function. |
-| `scripts/build_dashboard_data.py` | Runs the real pipeline over every listed song (`ORIGINAL_SONGS` plus the demo-song manifest), in both two-hand and right-hand-only modes, and writes the full trellis trace (every candidate, every transition considered, the kept back-pointer, the final path) for the dashboard. |
+| `scripts/generate_new_songs.py` | Writes the CSVs for the 55 demo songs (scales, arpeggios, trills, leaps, repeated notes). Each tests one part of the cost function. |
+| `scripts/build_dashboard_data.py` | Runs the optimizer on every listed song (`ORIGINAL_SONGS` plus the demo-song manifest) in both modes and writes the full trace for the dashboard: every candidate, every transition, the kept back-pointer and the final path. |
 | `dashboard/` | The interactive visualization. See [`dashboard/README.md`](../dashboard/README.md). |
 
 ## Running the optimizer
@@ -57,10 +56,9 @@ demand.
 
 **Expected failure:** in two-hand mode, `fuyunohanashi1.musicxml` stops with
 "Could not find any valid split point". Its opening chord spans 13 white keys
-and the hand can reach at most 9 even with splay, so no hand position can play
-it. This is the "impossible reach" case described in `ALGORITHM.md`, reported
-on purpose rather than guessed around. The dashboard data for that song comes
-from its `timed_steps.csv`, so it isn't affected.
+and the hand reaches at most 9 with splay. This is the unplayable case
+described in `ALGORITHM.md`. The dashboard uses the song's existing
+`timed_steps.csv` and is not affected.
 
 ### Options
 
@@ -84,7 +82,7 @@ from its `timed_steps.csv`, so it isn't affected.
 | `--output` | `outputs` | Output folder |
 | `--prefix` | (none) | Filename prefix, usually the song name |
 
-Run `python3 findOptimalHandPos.py --help` for the authoritative list.
+`python3 findOptimalHandPos.py --help` prints the current list.
 
 ## Verifying output
 
