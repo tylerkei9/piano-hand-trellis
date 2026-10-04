@@ -66,7 +66,7 @@ The Viterbi search adds these costs up over the whole song and picks the
 sequence of positions with the lowest total -- not the cheapest choice at
 each note in isolation, but the cheapest path through all of them.
 
-Run with `--help` for the command-line options, or see the root README
+Run with `--help` for the command-line options, or see docs/DEVELOPERS.md
 for how this fits into the rest of the project (the interactive
 dashboard, the example song catalog, and how to regenerate its data).
 """
